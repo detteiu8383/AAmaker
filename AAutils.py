@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 import math
 
 class AA:
@@ -133,11 +133,11 @@ class AA:
     def split_image_from_ratio(self, image, h_split, ratio):
         h_size = image.shape[1] // h_split
         h_trim = h_size * h_split
-
+        
         v_size = round(h_size * ratio)
         v_split = image.shape[0] // v_size
         v_trim = v_size * v_split
-
+        
         trimed_image = self.triming(image, v_trim, h_trim)
         split_images = self.split_image(trimed_image, h_split, v_split)
         return split_images
@@ -160,29 +160,48 @@ class AA:
         return char_map[int(bw)]
 
 
-    def images2str_lines(self, threshold, h_split, ratio):
+    def images2text_lines(self, threshold, h_split, ratio):
         split_images = self.split_image_from_ratio(threshold, h_split, ratio)
-        out_str = ""
+        out_text = ""
         for row in split_images:
             for split in row:
                 char = self.line2char(split)
-                out_str += char
+                out_text += char
                 #print(char,end="")
-            out_str += "\n"
+            out_text += "\n"
             #print("")
-        return out_str
+        return out_text
 
-    def image2str_brightness(self, image, h_split, ratio, char_map=default_brightness_map):
+    def image2text_brightness(self, image, h_split, ratio, char_map=default_brightness_map):
         gray = self.image2gray(image)
         split_images = self.split_image_from_ratio(gray, h_split, ratio)
-        out_str = ""
+        out_text = ""
         for row in split_images:
             for split in row:
                 char = self.gray2char(split, char_map)
-                out_str += char
+                out_text += char
                 #print(char,end="")
-            out_str += "\n"
+            out_text += "\n"
             #print("")
-        return out_str
+        return out_text
         
+    def add_text_to_image(self, image, text, font_path, font_size, font_color, height, width):
+        pil_image = self.cv2pil(image)
+        position = (width, height)
+        font = ImageFont.truetype(font_path, font_size)
+        draw = ImageDraw.Draw(pil_image)
+        draw.text(position, text, font_color, font=font)
 
+        return self.pil2cv(pil_image)
+
+    def create_text_image(self, text, font_path, font_size, font_color, background_color):
+        font = ImageFont.truetype(font_path, font_size)
+        tmp = Image.new('RGBA', (1, 1), (0,0,0,0))
+        tmp_d = ImageDraw.Draw(tmp)
+        text_size = tmp_d.textsize(text, font)
+
+        img = Image.new('RGBA', text_size, background_color)
+        img_d = ImageDraw.Draw(img)
+        img_d.text((0, 0), text, fill=font_color, font=font)
+        
+        return self.pil2cv(img)
