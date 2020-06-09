@@ -55,6 +55,14 @@ class AA:
         bw = gray.mean()
         return bw
 
+    def resize_ratio(self, image, ratio):
+        width, height = image.shape[:2]
+        if ratio >= 1:
+            image = cv2.resize(image, (height * ratio, width * ratio))
+        else:
+            image = cv2.resize(image, (height * ratio, width * ratio), interpolation = cv2.INTER_AREA)
+        return image
+
     def RGB_image2HSV_image(self, image):
         return cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -203,5 +211,5 @@ class AA:
         img = Image.new('RGBA', text_size, background_color)
         img_d = ImageDraw.Draw(img)
         img_d.text((0, 0), text, fill=font_color, font=font)
-        
+
         return self.pil2cv(img)
