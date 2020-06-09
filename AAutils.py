@@ -5,8 +5,7 @@ import math
 
 class AA:
 
-    default_line_map = "｜" * 23 + "＼" * 45 + "ー" * 45 + "／" * 45 + "｜" * 23
-    default_brightness_map = ""
+    default_brightness_map = " " * 64 + "." * 64 + "+" * 64 + "8" * 64
 
     def open_image(self, path):
         image = cv2.imread(path, -1)
@@ -50,7 +49,11 @@ class AA:
         h = HSV_image.T[0].flatten().mean()
         s = HSV_image.T[1].flatten().mean()
         v = HSV_image.T[2].flatten().mean()
-        return (h, s, v)        
+        return (h, s, v)
+
+    def gray_mean(self, gray):
+        bw = gray.mean()
+        return bw
 
     def RGB_image2HSV_image(self, image):
         return cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -93,7 +96,7 @@ class AA:
         [split_imgs.append(np.hsplit(h_img, h_split)) for h_img in np.vsplit(image, v_split)]
         return split_imgs
 
-    def auto_split_image(self, image, h_split, v_split):
+    def split_image_auto(self, image, h_split, v_split):
         h_size = image.shape[1] // h_split
         h_trim = h_size * h_split
 
@@ -104,7 +107,7 @@ class AA:
         split_images = self.split_image(trimed_image, h_split, v_split)
         return split_images
 
-    def auto_sqare_split_image(self, image, h_split):
+    def split_image_auto_sqare(self, image, h_split):
         h_size = image.shape[1] // h_split
         h_trim = h_size * h_split
 
@@ -127,7 +130,19 @@ class AA:
         split_images = self.split_image(trimed_image, h_split, v_split)
         return split_images
 
-    def line2char(self, threshold, char_map):
+    def split_image_from_ratio(self, image, h_split, ratio):
+        h_size = image.shape[1] // h_split
+        h_trim = h_size * h_split
+
+        v_size = round(h_size * ratio)
+        v_split = image.shape[0] // v_size
+        v_trim = v_size * v_split
+
+        trimed_image = self.triming(image, v_trim, h_trim)
+        split_images = self.split_image(trimed_image, h_split, v_split)
+        return split_images
+
+    def line2char(self, threshold):
         resize_split_img = cv2.resize(threshold, (100, 100))
         lines = cv2.HoughLinesP(resize_split_img, 1, np.pi/180, 70, 50, 10)
         if lines is None:
@@ -138,14 +153,36 @@ class AA:
                     theta = 90
                 else:
                     theta = int(round(math.degrees(math.atan((y2-y1)/(x2-x1))) * -1 + 90, 0))
-                return char_map[theta]
+                return theta
 
-    def images2str_lines(self, threshold, h_split, char_map=default_line_map):
-        split_images = self.auto_sqare_split_image(threshold, h_split)
+    def gray2char(self, gray, char_map):
+        bw = self.gray_mean(gray)
+        return char_map[int(bw)]
+
+
+    def images2str_lines(self, threshold, h_split, ratio):
+        split_images = self.split_image_from_ratio(threshold, h_split, ratio)
+        out_str = ""
         for row in split_images:
             for split in row:
-                theta = self.line2char(split,char_map)
-                print(theta,end="")
-            print("")
-        return
+                char = self.line2char(split)
+                out_str += char
+                #print(char,end="")
+            out_str += "\n"
+            #print("")
+        return out_str
+
+    def image2str_brightness(self, image, h_split, ratio, char_map=default_brightness_map):
+        gray = self.image2gray(image)
+        split_images = self.split_image_from_ratio(gray, h_split, ratio)
+        out_str = ""
+        for row in split_images:
+            for split in row:
+                char = self.gray2char(split, char_map)
+                out_str += char
+                #print(char,end="")
+            out_str += "\n"
+            #print("")
+        return out_str
+        
 
