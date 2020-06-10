@@ -5,7 +5,8 @@ import math
 
 class AA:
 
-    default_brightness_map = " " * 64 + "." * 64 + "+" * 64 + "8" * 64
+    default_brightness_map = "M" * 13 + "W" * 15 + "N" * 20 + "B" * 21 + "RRRRDDKHHHQU8&GG666$O00AAAAASSSdX##@bCV4445555kkkhE%222222ZZZZZZYYJFFFFFF*******fffTTIL7????1111111{{{{[[[||||jjjjllll<<<<!!;;i(=====////////\"\"\"\"~~~~~~^^^^^--;;;:::````''',,,,.......     "
+    MSGOTHIC_PATH = "C:\Windows\Fonts\msgothic.ttc"
 
     def open_image(self, path):
         image = cv2.imread(path, -1)
