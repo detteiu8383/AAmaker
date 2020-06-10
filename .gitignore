@@ -1,5 +1,5 @@
 /imgs
 *.png
 *.jpg
+/__pycache__
 test.py
-/__pyache__

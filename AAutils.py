@@ -1,11 +1,12 @@
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 import math
 
 class AA:
 
-    default_brightness_map = " " * 64 + "." * 64 + "+" * 64 + "8" * 64
+    default_brightness_map = "M" * 13 + "W" * 15 + "N" * 20 + "B" * 21 + "RRRRDDKHHHQU8&GG666$O00AAAAASSSdX##@bCV4445555kkkhE%222222ZZZZZZYYJFFFFFF*******fffTTIL7????1111111{{{{[[[||||jjjjllll<<<<!!;;i(=====////////\"\"\"\"~~~~~~^^^^^--;;;:::````''',,,,.......     "
+    MSGOTHIC_PATH = "C:\Windows\Fonts\msgothic.ttc"
 
     def open_image(self, path):
         image = cv2.imread(path, -1)
@@ -54,6 +55,14 @@ class AA:
     def gray_mean(self, gray):
         bw = gray.mean()
         return bw
+
+    def resize_ratio(self, image, ratio):
+        width, height = image.shape[:2]
+        if ratio >= 1:
+            image = cv2.resize(image, (height * ratio, width * ratio))
+        else:
+            image = cv2.resize(image, (height * ratio, width * ratio), interpolation = cv2.INTER_AREA)
+        return image
 
     def RGB_image2HSV_image(self, image):
         return cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -107,18 +116,6 @@ class AA:
         split_images = self.split_image(trimed_image, h_split, v_split)
         return split_images
 
-    def split_image_auto_sqare(self, image, h_split):
-        h_size = image.shape[1] // h_split
-        h_trim = h_size * h_split
-
-        v_size = h_size
-        v_split = image.shape[0] // v_size
-        v_trim = v_size * v_split
-
-        trimed_image = self.triming(image, v_trim, h_trim)
-        split_images = self.split_image(trimed_image, h_split, v_split)
-        return split_images
-
     def split_image_from_size(self, image, h_size, v_size):
         h_split = image.shape[1] // h_size
         h_trim = h_size * h_split
@@ -133,11 +130,11 @@ class AA:
     def split_image_from_ratio(self, image, h_split, ratio):
         h_size = image.shape[1] // h_split
         h_trim = h_size * h_split
-
+        
         v_size = round(h_size * ratio)
         v_split = image.shape[0] // v_size
         v_trim = v_size * v_split
-
+              
         trimed_image = self.triming(image, v_trim, h_trim)
         split_images = self.split_image(trimed_image, h_split, v_split)
         return split_images
@@ -159,23 +156,44 @@ class AA:
         bw = self.gray_mean(gray)
         return char_map[int(bw)]
 
-
-    def images2str_lines(self, threshold, h_split, ratio):
+    def image2text_lines(self, threshold, h_split, ratio):
         split_images = self.split_image_from_ratio(threshold, h_split, ratio)
+        out_text = ""
         for row in split_images:
             for split in row:
                 char = self.line2char(split)
-                print(char,end="")
-            print("")
-        return
+                out_text += char
+            out_text += "\n"
+        return out_text
 
-    def image2str_brightness(self, gray, h_split, ratio, char_map=default_brightness_map):
+    def image2text_brightness(self, image, h_split, ratio, char_map=default_brightness_map):
+        gray = self.image2gray(image)
         split_images = self.split_image_from_ratio(gray, h_split, ratio)
+        out_text = ""
         for row in split_images:
+            out_text += "\n"
             for split in row:
                 char = self.gray2char(split, char_map)
-                print(char,end="")
-            print("")
-        return
+                out_text += char
+            
+        return out_text[1:]
         
+    def add_text_to_image(self, image, text, font_path, font_size, font_color, height, width):
+        pil_image = self.cv2pil(image)
+        position = (width, height)
+        font = ImageFont.truetype(font_path, font_size)
+        draw = ImageDraw.Draw(pil_image)
+        draw.text(position, text, font_color, font=font)
 
+        return self.pil2cv(pil_image)
+
+    def create_text_image(self, text, font_path, font_size, font_color, background_color):
+        font = ImageFont.truetype(font_path, font_size)
+        tmp = Image.new('RGBA', (1, 1), (0,0,0,0))
+        tmp_d = ImageDraw.Draw(tmp)
+        text_size = tmp_d.textsize(text, font)
+        img = Image.new('RGBA', text_size, background_color)
+        img_d = ImageDraw.Draw(img)
+        img_d.text((0, 0), text, fill=font_color, font=font)
+
+        return self.pil2cv(img)
