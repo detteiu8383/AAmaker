@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageFont, ImageDraw
 import math
+import unicodedata
 
 class AA:
 
@@ -197,3 +198,26 @@ class AA:
         img_d.text((0, 0), text, fill=font_color, font=font)
 
         return self.pil2cv(img)
+
+    def make_cahr_map_half(self, text):
+        text += " "
+        char_set = set(text)
+        char_list = []
+        for moji in char_set:
+            if unicodedata.east_asian_width(moji) in ["H", "Na"]:
+                char_list.append(moji)
+        return 
+
+    def sort_in_brightness(self, char_list):
+        brightness_list = []
+        for moji in char_list:
+            text_img = self.create_text_image(moji, self.MSGOTHIC_PATH, 18, (0,0,0), (255,255,255,255))
+            brightness = self.gray_mean(self.image2gray(text_img))
+            brightness_list.append([brightness_list, moji])
+        
+        brightness_list.sort()
+        
+        
+        
+        
+        return
