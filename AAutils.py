@@ -171,11 +171,12 @@ class AA:
         split_images = self.split_image_from_ratio(gray, h_split, ratio)
         out_text = ""
         for row in split_images:
+            out_text += "\n"
             for split in row:
                 char = self.gray2char(split, char_map)
                 out_text += char
-            out_text += "\n"
-        return out_text
+            
+        return out_text[1:]
         
     def add_text_to_image(self, image, text, font_path, font_size, font_color, height, width):
         pil_image = self.cv2pil(image)
