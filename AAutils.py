@@ -115,18 +115,6 @@ class AA:
         split_images = self.split_image(trimed_image, h_split, v_split)
         return split_images
 
-    def split_image_auto_sqare(self, image, h_split):
-        h_size = image.shape[1] // h_split
-        h_trim = h_size * h_split
-
-        v_size = h_size
-        v_split = image.shape[0] // v_size
-        v_trim = v_size * v_split
-
-        trimed_image = self.triming(image, v_trim, h_trim)
-        split_images = self.split_image(trimed_image, h_split, v_split)
-        return split_images
-
     def split_image_from_size(self, image, h_size, v_size):
         h_split = image.shape[1] // h_size
         h_trim = h_size * h_split
