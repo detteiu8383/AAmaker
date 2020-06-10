@@ -134,7 +134,7 @@ class AA:
         v_size = round(h_size * ratio)
         v_split = image.shape[0] // v_size
         v_trim = v_size * v_split
-        
+              
         trimed_image = self.triming(image, v_trim, h_trim)
         split_images = self.split_image(trimed_image, h_split, v_split)
         return split_images
@@ -156,17 +156,14 @@ class AA:
         bw = self.gray_mean(gray)
         return char_map[int(bw)]
 
-
-    def images2text_lines(self, threshold, h_split, ratio):
+    def image2text_lines(self, threshold, h_split, ratio):
         split_images = self.split_image_from_ratio(threshold, h_split, ratio)
         out_text = ""
         for row in split_images:
             for split in row:
                 char = self.line2char(split)
                 out_text += char
-                #print(char,end="")
             out_text += "\n"
-            #print("")
         return out_text
 
     def image2text_brightness(self, image, h_split, ratio, char_map=default_brightness_map):
@@ -177,9 +174,7 @@ class AA:
             for split in row:
                 char = self.gray2char(split, char_map)
                 out_text += char
-                #print(char,end="")
             out_text += "\n"
-            #print("")
         return out_text
         
     def add_text_to_image(self, image, text, font_path, font_size, font_color, height, width):
@@ -196,7 +191,6 @@ class AA:
         tmp = Image.new('RGBA', (1, 1), (0,0,0,0))
         tmp_d = ImageDraw.Draw(tmp)
         text_size = tmp_d.textsize(text, font)
-
         img = Image.new('RGBA', text_size, background_color)
         img_d = ImageDraw.Draw(img)
         img_d.text((0, 0), text, fill=font_color, font=font)
