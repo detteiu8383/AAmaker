@@ -149,8 +149,38 @@ class AA:
                 if x2 - x1 == 0:
                     theta = 90
                 else:
-                    theta = int(round(math.degrees(math.atan((y2-y1)/(x2-x1))) * -1 + 90, 0))
-                return theta
+                    theta = round(math.degrees(math.atan((y2-y1)/(x2-x1))) * -1, 0)
+                if (-90 <= theta and theta < -75) or (75 < theta and theta <= 90):
+                    if (x1 + x2) / 2 < 100 * 0.365:
+                        return '| '
+                    elif (x1 + x2) / 2 <= 100 * 0.625:
+                        return '｜'
+                    else:
+                        return ' |'    
+                
+                elif -75 <= theta and theta < -52:
+                    if (x1 + x2) / 2 < 100 * 0.5:
+                        return ('\u005C' + ' ')        
+                    else:
+                        return (' ' + '\u005C')
+
+                elif -52 <= theta and theta < -23:
+                    return '＼'
+
+                elif -23 <= theta and theta <= 23:
+                    if (y1 + y2) / 2 < 100 * 0.75:
+                        return 'ー'
+                    else:
+                        return '＿'
+
+                elif 23 < theta and theta <= 52:
+                    return '／'
+
+                else:
+                    if (x1 + x2) / 2 < 100 * 0.5:
+                        return '/ '       
+                    else:
+                        return ' /'
 
     def gray2char(self, gray, char_map):
         bw = self.gray_mean(gray)
