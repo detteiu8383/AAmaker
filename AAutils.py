@@ -153,9 +153,12 @@ class AA:
                     theta = int(round(math.degrees(math.atan((y2-y1)/(x2-x1))) * -1 + 90, 0))
                 return theta
 
-    def gray2char(self, gray, char_map):
+    def gray2char(self, gray, char_map, inv=False):
         bw = self.gray_mean(gray)
-        return char_map[int(bw)]
+        if not inv:
+            return char_map[int(bw)]
+        else:
+            return char_map[255 - int(bw)]
 
     def image2text_lines(self, threshold, h_split, ratio):
         split_images = self.split_image_from_ratio(threshold, h_split, ratio)
@@ -167,14 +170,14 @@ class AA:
             out_text += "\n"
         return out_text
 
-    def image2text_brightness(self, image, h_split, ratio, char_map=default_brightness_map):
+    def image2text_brightness(self, image, h_split, ratio, inv=False, char_map=default_brightness_map):
         gray = self.image2gray(image)
         split_images = self.split_image_from_ratio(gray, h_split, ratio)
         out_text = ""
         for row in split_images:
             out_text += "\n"
             for split in row:
-                char = self.gray2char(split, char_map)
+                char = self.gray2char(split, char_map, inv)
                 out_text += char
             
         return out_text[1:]
