@@ -62,7 +62,7 @@ class AA:
         if ratio >= 1:
             image = cv2.resize(image, (height * ratio, width * ratio))
         else:
-            image = cv2.resize(image, (height * ratio, width * ratio), interpolation = cv2.INTER_AREA)
+            image = cv2.resize(image, (int(height * ratio), int(width * ratio)), interpolation = cv2.INTER_AREA)
         return image
 
     def RGB_image2HSV_image(self, image):
